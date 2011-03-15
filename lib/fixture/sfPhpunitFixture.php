@@ -47,17 +47,14 @@ abstract class sfPhpunitFixture
   protected $_requiredOptions = array('fixture_ext', 'snapshot-table-prefix');
 
   protected $_options = array();
-  
+
+  protected $_data;
+
   /**
-   * 
+   *
    * @var PDO
    */
   protected $_pdo;
-  
-  /**
-   * array(list of snapshots that have been made)
-   */
-  protected static $_snapshots = array();
 
   public function __construct(sfPhpunitFixtureAggregator $aggregator, array $options = array())
   {
@@ -84,28 +81,20 @@ abstract class sfPhpunitFixture
   abstract public function load($file = null, $fixture_type = self::OWN);
 
   /**
-   * Clean the database
-   *
-   * @return sfPhpunitFixture
+   * (non-PHPdoc)
+   * @see plugins/sfPhpunitPlugin/lib/fixture/sfPhpunitFixtureAbstract#clean()
    */
   public function clean()
   {
-    $this->pdo()->exec("SET FOREIGN_KEY_CHECKS = 0;");
-    
-    $snapshotPrefix = $this->_getOption('snapshot-table-prefix');
-    
-    $query = $this->pdo()->prepare('SHOW TABLES');
-    $query->execute();
-    while($table = $query->fetchColumn()) {
-      if (strpos($table, $snapshotPrefix) !== false) continue;
-      
-      $this->pdo()->exec("TRUNCATE TABLE `{$table}`");
-    }
+    $this->_notify('before_clean');
 
-    $this->pdo()->exec("SET FOREIGN_KEY_CHECKS = 1;");
-    
     $this->_getDataLoader()->cleanObjects();
-    
+    $this->_data = null;
+
+    $this->pdo()->clean();
+
+    $this->_notify('after_clean');
+
     return $this;
   }
 
@@ -119,79 +108,57 @@ abstract class sfPhpunitFixture
    * @return mixed
    */
   abstract public function get($id);
-  
-  public function doSnapshot($name)
-  {   
-    $this->_notify('before_do_snapshot', array('name' => $name));
-    
-    $query = $this->pdo()->query('SHOW TABLES');
-    $snapshotPrefix = $this->_getOption('snapshot-table-prefix');
-    
-    while($table = $query->fetchColumn()) {
-      if (strpos($table, $snapshotPrefix) !== false) continue;
-      
-      $snapshop_table = "{$snapshotPrefix}_{$name}_{$table}";
-      $this->pdo()->exec("DROP TABLE IF EXISTS `{$snapshop_table}`");
-      $this->pdo()->exec("CREATE TABLE `{$snapshop_table}` SELECT * FROM `{$table}`");
-    }
 
-    self::$_snapshots[$name] = $name;
-    
+  public function doSnapshot($name)
+  {
+    $this->_notify('before_do_snapshot', array('name' => $name));
+
+    $this->pdo()->doSnapshot($name);
+
+    $file = sfConfig::get('sf_phpunit_dir').'/fixtures/snapshots/cache/'.$name;
+    file_put_contents($file, serialize($this->_getDataLoader()));
+
+//    $this->_getDataLoader()->doSnapshot($name);
+
     $this->_notify('after_do_snapshot', array('name' => $name));
-    
+
     return $this;
   }
-  
+
   public function cleanSnapshots()
   {
-    $query = $this->pdo()->query('SHOW TABLES');
-    $snapshotPrefix = $this->_getOption('snapshot-table-prefix');
-    
-    while($table = $query->fetchColumn()) {
-      if (strpos($table, $snapshotPrefix) === false) continue;
-      
-      $this->pdo()->exec("DROP TABLE IF EXISTS `{$table}`");
-    }
-    
-    $this->_notify('after_clean_snapshots');
+    $this->pdo()->cleanSnapshots();
+    sfToolkit::clearDirectory(sfConfig::get('sf_phpunit_dir').'/fixtures/snapshots/cache');
+    $this->_getDataLoader()->cleanSnapshots();
 
     return $this;
   }
-  
+
   /**
-   * 
+   *
    * @param string $name
    */
   public function loadSnapshot($name)
   {
-//     @TODO uncomment it. work a round 
-//    if (!in_array($name, self::$_snapshots)) {
-//      throw new Exception('The snapshot with name `'.$name.'` was not loaded before loading');
-//    }
-    
     $this->_notify('before_load_snapshot', array('name' => $name));
-    
-    $this->pdo()->exec("SET FOREIGN_KEY_CHECKS = 0;");
-    
-    $query = $this->pdo()->query('SHOW TABLES');
-    while($table = $query->fetchColumn()) {
-      if (strpos($table, '_snapshot_') !== false) continue;
-      
-      $snapshop_table = "_snapshot_{$name}_{$table}";
-      $this->pdo()->exec("TRUNCATE TABLE `{$table}`");
-      $this->pdo()->exec("INSERT INTO {$table} SELECT * FROM `{$snapshop_table}`");
+
+    $this->pdo()->loadSnapshot($name);
+
+    $file = sfConfig::get('sf_phpunit_dir').'/fixtures/snapshots/cache/'.$name;
+    if (!(is_file($file) && is_readable($file))) {
+      throw new Exception('The snapshot `'.$name.'` broken. A file `'.$file.'` with serialized data loader does not exist.');
     }
 
-    $this->pdo()->exec("SET FOREIGN_KEY_CHECKS = 1;");
-    
+    $this->_data = unserialize(file_get_contents($file));
+    //$this->_getDataLoader()->loadSnapshot($name);
+
     $this->_notify('after_load_snapshot', array('name' => $name));
-    
-    
+
     return $this;
   }
-  
+
   /**
-   * @return PDO
+   * @return sfPhpunitFixtureDb
    */
   public function pdo()
   {
@@ -200,10 +167,14 @@ abstract class sfPhpunitFixture
         throw new LogicException('The context\database connection was not initialized');
       }
     }
-    
+
     return $this->_pdo;
   }
-  
+
+  /**
+   *
+   * @return sfPhpunitFixtureDb
+   */
   abstract protected function _pdo();
 
   /**
@@ -258,16 +229,16 @@ abstract class sfPhpunitFixture
 
     return $this->_fixPath( array_shift($items) );
   }
-  
+
   protected function _notify($method, array $parameters = array())
   {
     if (!sfContext::hasInstance()) {
       return;
     }
-    
+
     $dispatcher = sfContext::getInstance()->getConfiguration()->getEventDispatcher();
     $dispatcher->notify(new sfEvent($this, "sfPhpunit.fixture.{$method}", $parameters));
-    
+
   }
 
   protected function _fixPath($path)
@@ -303,12 +274,12 @@ abstract class sfPhpunitFixture
     } else {
       throw new Exception('Invalid method call '.__CLASS__.'::'.$name);
     }
-     
+
     $sources = array(self::OWN, self::PACKAGE, self::COMMON, self::SYMFONY);
     if (!in_array($source, $sources)) {
       throw new Exception('Invalid fixture source level. Allowed values `'.implode('`, `', $sources).'` but given `'.$source.'`');
     }
-     
+
     return call_user_func_array(array($this, $method), $args);
   }
 
@@ -317,7 +288,7 @@ abstract class sfPhpunitFixture
     if (!array_key_exists($name, $this->_options)) {
       throw new Exception('The option `'.$name.'` does not exist');
     }
-     
+
     return $this->_options[$name];
   }
 
@@ -347,15 +318,15 @@ abstract class sfPhpunitFixture
       'sfPhpunitFixtureDoctrine' => 'sfPhpunitFixtureDoctrineAggregator',
       'sfPhpunitFixtureDbUnit' => 'sfPhpunitFixtureDbUnitAggregator',
       'sfPhpunitFixtureFile' => 'sfPhpunitFixtureFileAggregator');
-     
+
     if (!$aggregator instanceof sfPhpunitFixtureAggregator) {
       throw new Exception('For using fixtures from the testcase or suite `'.get_class($aggregator).'` you have to implement one of the following interfaces `'.implode('`, `', $map).'`');
     }
-     
+
     foreach ($map as $class => $agg_type) {
       if ($aggregator instanceof $agg_type) {
         return new $class($aggregator, $options);
-      } 
+      }
     }
 
     throw new Exception('It does not have any sence to implement `sfPhpunitFixtureAggregator` interface. Please check this once againg and implement its child\'s interfaces  `'.implode('`, `', $map).'`');
