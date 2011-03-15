@@ -11,63 +11,63 @@
 abstract class sfBasePhpunitTestCase 
   extends PHPUnit_Framework_TestCase
 {
-	/**
-	 * 
-	 * @var sfPhpunitFixture
-	 */
-	protected $_fixture;
-	
-	/**
-	 * 
-	 * @var array
-	 */
-	protected $_backupSfConfig = array();
-	
-	/**
-	 * Dev hook for custom "setUp" stuff
-	 * Overwrite it in your test class, if you have to execute stuff before a test is called.
-	 */
-	protected function _start()
-	{
-	}
+  /**
+   * 
+   * @var sfPhpunitFixture
+   */
+  protected $_fixture;
+  
+  /**
+   * 
+   * @var array
+   */
+  protected $_backupSfConfig = array();
+  
+  /**
+   * Dev hook for custom "setUp" stuff
+   * Overwrite it in your test class, if you have to execute stuff before a test is called.
+   */
+  protected function _start()
+  {
+  }
 
-	/**
-	 * Dev hook for custom "tearDown" stuff
-	 * Overwrite it in your test class, if you have to execute stuff after a test is called.
-	 */
-	protected function _end()
-	{
-	}
-	
-	protected function _backupSfConfig()
-	{
-	  $this->_backupSfConfig = sfConfig::getAll();
-	}
-	
-	protected function _restoreSfConfig()
-	{
-	  sfConfig::clear();
-	  sfConfig::add($this->_backupSfConfig);
-	}
+  /**
+   * Dev hook for custom "tearDown" stuff
+   * Overwrite it in your test class, if you have to execute stuff after a test is called.
+   */
+  protected function _end()
+  {
+  }
+  
+  protected function _backupSfConfig()
+  {
+    $this->_backupSfConfig = sfConfig::getAll();
+  }
+  
+  protected function _restoreSfConfig()
+  {
+    sfConfig::clear();
+    sfConfig::add($this->_backupSfConfig);
+  }
 
-	/**
-	 * Please do not touch this method and use _start directly!
-	 */
-	public function setUp()
-	{
-	  $this->_backupSfConfig();
-		$this->_start();
-	}
+  /**
+   * Please do not touch this method and use _start directly!
+   */
+  public function setUp()
+  {
+    $this->_backupSfConfig();
+    $this->_start();
+  }
 
-	/**
-	 * Please do not touch this method and use _end directly!
-	 */
-	public function tearDown()
-	{
-		$this->_end();
-		$this->_restoreSfConfig();
-	}
-	
+  /**
+   * Please do not touch this method and use _end directly!
+   */
+  public function tearDown()
+  {
+    $this->_end();
+    $this->_restoreSfConfig();
+  }
+  
   public function getPackageFixtureDir()
   {
     $sep = DIRECTORY_SEPARATOR;
@@ -80,27 +80,27 @@ abstract class sfBasePhpunitTestCase
       "{$sep}test{$sep}phpunit{$sep}fixtures", 
       $path);
   }
-	
-	public function getOwnFixtureDir()
-	{
-	  $sep = DIRECTORY_SEPARATOR;
-	  
-	  $reflection = new ReflectionClass($this);
+  
+  public function getOwnFixtureDir()
+  {
+    $sep = DIRECTORY_SEPARATOR;
+    
+    $reflection = new ReflectionClass($this);
     $path = str_replace('.php', '', $reflection->getFileName());
     
     return str_replace(
       "{$sep}test{$sep}phpunit", 
       "{$sep}test{$sep}phpunit{$sep}fixtures", 
       $path);
-	}
-	
-	public function getCommonFixtureDir()
-	{
-	  $path = array(sfConfig::get('sf_test_dir'), 'phpunit', 'fixtures', 'common');
-	  
-	  return implode(DIRECTORY_SEPARATOR,$path);
-	}
-	
+  }
+  
+  public function getCommonFixtureDir()
+  {
+    $path = array(sfConfig::get('sf_test_dir'), 'phpunit', 'fixtures', 'common');
+    
+    return implode(DIRECTORY_SEPARATOR, $path);
+  }
+  
   public function getSymfonyFixtureDir()
   {
     $path = array(sfConfig::get('sf_data_dir'), 'fixtures');
@@ -164,7 +164,7 @@ abstract class sfBasePhpunitTestCase
   {
     return new sfPhpunitStubLatter();
   }
-	
+  
   /**
    * 
    * 
@@ -176,9 +176,10 @@ abstract class sfBasePhpunitTestCase
 
     return is_null($id) ? $this->_fixture : $this->_fixture->get($id); 
   }
-	
-	protected function _initFixture(array $options = array())
-	{
-	  $this->_fixture = sfPhpunitFixture::build($this, $options);
-	}
+  
+  protected function _initFixture(array $options = array())
+  {
+    $options['fixture_ext'] = '.yml'; // TODO move it
+    $this->_fixture = sfPhpunitFixture::build($this, $options);
+  }
 }

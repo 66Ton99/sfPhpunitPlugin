@@ -10,16 +10,16 @@
  */
 class sfPhpunitInitTask extends sfBasePhpunitCreateTask
 {
-	public function __construct(sfEventDispatcher $dispatcher = null, sfFormatter $formatter = null)
-	{
-		is_null($dispatcher) && $dispatcher = new sfEventDispatcher;
-		is_null($formatter) && $formatter = new sfFormatter;
-		
-		return parent::__construct($dispatcher, $formatter);
-	}
-	
+  public function __construct(sfEventDispatcher $dispatcher = null, sfFormatter $formatter = null)
+  {
+    is_null($dispatcher) && $dispatcher = new sfEventDispatcher;
+    is_null($formatter) && $formatter = new sfFormatter;
+    
+    return parent::__construct($dispatcher, $formatter);
+  }
+  
   protected function configure()
-  {  	
+  {    
     $this->namespace        = 'phpunit';
     $this->name             = 'init';
     $this->briefDescription = 'Prepare files and dirs needed for phpunit';
@@ -31,12 +31,12 @@ EOF;
 
   protected function execute($arguments = array(), $options = array())
   {
-    parent::execute($arguments,$options);
+    parent::execute($arguments, $options);
     
-  	$this->_initRequiredDirs();
-  	$this->_initBaseClasses();
-  	$this->_initFixturesDirs();
-  	$this->_initAppsTestIndex();
+    $this->_initRequiredDirs();
+    $this->_initBaseClasses();
+    $this->_initFixturesDirs();
+    $this->_initAppsTestIndex();
   }
   
   protected function _initRequiredDirs()

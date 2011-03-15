@@ -28,10 +28,10 @@
 abstract class sfPhpunitFixture
 {
   const
-	  OWN = 'Own',
-	  PACKAGE = 'Package',
-	  COMMON = 'Common',
-	  SYMFONY = 'Symfony';
+    OWN = 'Own',
+    PACKAGE = 'Package',
+    COMMON = 'Common',
+    SYMFONY = 'Symfony';
 
   /**
    *
@@ -224,13 +224,18 @@ abstract class sfPhpunitFixture
    * @param string patter of the files to search
    * @param string fixture type it's one of this class constant
    *
-   * @return array
+   * @return array|string|false
    */
-  public function getFiles($file = null, $fixture_type = self::OWN)
-  {
-    $pattern = is_null($file) ? '*'.$this->_getExt() : $file.$this->_getExt();
-
-    return sfFinder::type('file')->name($pattern)->maxdepth(0)->in($this->getDir($fixture_type));
+  public function getFiles($path = null, $fixture_type = self::OWN)
+  {    
+    $fullPath = $this->getDir($fixture_type) . '/' . $path;
+    if ('/' == substr($fullPath, -1,1)) {
+      if (!is_readable($fullPath)) return false;
+      return sfFinder::type('file')->name('*' . $this->_getExt())->maxdepth(0)->in($fullPath);
+    } elseif (is_readable($fullPath . $this->_getExt())) {
+      return $fullPath . $this->_getExt();
+    }
+    return false;
   }
 
   /**
@@ -338,9 +343,9 @@ abstract class sfPhpunitFixture
   public static function build($aggregator, array $options = array())
   {
     $map = array(
-  	  'sfPhpunitFixturePropel' => 'sfPhpunitFixturePropelAggregator',
-  	  'sfPhpunitFixtureDoctrine' => 'sfPhpunitFixtureDoctrineAggregator',
-  	  'sfPhpunitFixtureDbUnit' => 'sfPhpunitFixtureDbUnitAggregator',
+      'sfPhpunitFixturePropel' => 'sfPhpunitFixturePropelAggregator',
+      'sfPhpunitFixtureDoctrine' => 'sfPhpunitFixtureDoctrineAggregator',
+      'sfPhpunitFixtureDbUnit' => 'sfPhpunitFixtureDbUnitAggregator',
       'sfPhpunitFixtureFile' => 'sfPhpunitFixtureFileAggregator');
      
     if (!$aggregator instanceof sfPhpunitFixtureAggregator) {

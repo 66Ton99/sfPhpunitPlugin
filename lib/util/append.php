@@ -43,50 +43,28 @@
  * @since      File available since Release 3.2.10
  */
 
-require_once 'PHPUnit/Util/CodeCoverage.php';
-require_once 'PHPUnit/Util/FilterIterator.php';
+if ( isset($_COOKIE['PHPUNIT_SELENIUM_TEST_ID']) &&
+    !isset($_GET['PHPUNIT_SELENIUM_TEST_ID']) &&
+    extension_loaded('xdebug')) {
+    $GLOBALS['PHPUNIT_FILTERED_FILES'][] = __FILE__;
 
-// Set this to the directory that contains the code coverage files.
-// It defaults to getcwd(). If you have configured a different directory
-// in prepend.php, you need to configure the same directory here.
-//$GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY'] = getcwd();
+    $data = xdebug_get_code_coverage();
+    xdebug_stop_code_coverage();
 
-if (isset($_GET['PHPUNIT_SELENIUM_TEST_ID'])) {
-    $files = new PHPUnit_Util_FilterIterator(
-      new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator(
-          $GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY']
-        )
-      ),
-      $_GET['PHPUNIT_SELENIUM_TEST_ID']
-    );
-
-    $coverage = array();
-
-    foreach ($files as $file) {
-        $filename = $file->getPathName();
-        $data     = unserialize(file_get_contents($filename));
-        @unlink($filename);
-        unset($filename);
-
-        foreach ($data as $filename => $lines) {
-            if (PHPUnit_Util_CodeCoverage::isFile($filename)) {
-                if (!isset($coverage[$filename])) {
-                    $coverage[$filename] = array(
-                      'md5' => md5_file($filename), 'coverage' => $lines
-                    );
-                } else {
-                    foreach ($lines as $line => $flag) {
-                        if (!isset($coverage[$filename]['coverage'][$line]) ||
-                            $flag > $coverage[$filename]['coverage'][$line]) {
-                            $coverage[$filename]['coverage'][$line] = $flag;
-                        }
-                    }
-                }
-            }
-        }
+    foreach ($GLOBALS['PHPUNIT_FILTERED_FILES'] as $file) {
+        unset($data[$file]);
     }
 
-    print serialize($coverage);
+    if (is_string($GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY']) &&
+        is_dir($GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY'])) {
+        $file = $GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY'] .
+                DIRECTORY_SEPARATOR . md5($_SERVER['SCRIPT_FILENAME']);
+    } else {
+        throw new Exception("Coverage directory not set {$GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY']}");
+    }
+
+    file_put_contents(
+      $file . '.' . md5(uniqid(rand(), TRUE)) . '.' . $_COOKIE['PHPUNIT_SELENIUM_TEST_ID'],
+      serialize($data)
+    );
 }
-?>

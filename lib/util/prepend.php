@@ -43,50 +43,27 @@
  * @since      File available since Release 3.2.10
  */
 
-require_once 'PHPUnit/Util/CodeCoverage.php';
-require_once 'PHPUnit/Util/FilterIterator.php';
 
-// Set this to the directory that contains the code coverage files.
-// It defaults to getcwd(). If you have configured a different directory
-// in prepend.php, you need to configure the same directory here.
-//$GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY'] = getcwd();
 
-if (isset($_GET['PHPUNIT_SELENIUM_TEST_ID'])) {
-    $files = new PHPUnit_Util_FilterIterator(
-      new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator(
-          $GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY']
-        )
-      ),
-      $_GET['PHPUNIT_SELENIUM_TEST_ID']
-    );
-
-    $coverage = array();
-
-    foreach ($files as $file) {
-        $filename = $file->getPathName();
-        $data     = unserialize(file_get_contents($filename));
-        @unlink($filename);
-        unset($filename);
-
-        foreach ($data as $filename => $lines) {
-            if (PHPUnit_Util_CodeCoverage::isFile($filename)) {
-                if (!isset($coverage[$filename])) {
-                    $coverage[$filename] = array(
-                      'md5' => md5_file($filename), 'coverage' => $lines
-                    );
-                } else {
-                    foreach ($lines as $line => $flag) {
-                        if (!isset($coverage[$filename]['coverage'][$line]) ||
-                            $flag > $coverage[$filename]['coverage'][$line]) {
-                            $coverage[$filename]['coverage'][$line] = $flag;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    print serialize($coverage);
+// By default the code coverage files are written to the same directory
+// that contains the covered sourcecode files. Use this setting to change
+// the default behaviour and set a specific directory to write the files to.
+// If you change the default setting, please make sure to also configure
+// the same directory in phpunit_coverage.php. Also note that the webserver
+// needs write access to the directory.
+$GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY'] = dirname(__FILE__) . '/../../../../cache/coverage/';
+if (!is_dir($GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY'])) {
+  @mkdir($GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY']);
+  @chmod($GLOBALS['PHPUNIT_COVERAGE_DATA_DIRECTORY'], 0777);
 }
-?>
+
+if ( isset($_COOKIE['PHPUNIT_SELENIUM_TEST_ID']) &&
+    !isset($_GET['PHPUNIT_SELENIUM_TEST_ID']) &&
+    extension_loaded('xdebug')) {
+      
+    
+      
+    $GLOBALS['PHPUNIT_FILTERED_FILES'] = array(__FILE__);
+
+    xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
+}

@@ -26,17 +26,17 @@ abstract class sfBasePhpunitAmfTestCase extends sfBasePhpunitTestCase
    * @var false|string 
    */
   protected $_amfservice = false;
-	
-	public function setUp()
+  
+  public function setUp()
   {
     $this->_setUpMapping();
-  	parent::setUp();
+    parent::setUp();
   }
   
   public function tearDown()
   {
-  	$this->_tearDownMapping();
-  	parent::tearDown();
+    $this->_tearDownMapping();
+    parent::tearDown();
   }
   
   /**
@@ -46,16 +46,16 @@ abstract class sfBasePhpunitAmfTestCase extends sfBasePhpunitTestCase
    */
   protected function _setUpMapping()
   {
-  	$this->_defaultMapping = SabreAMF_ClassMapper::$maps;
-  	
-  	foreach ($this->_getMappedClasses() as $flashClass => $phpClass) {
-  		SabreAMF_ClassMapper::registerClass($flashClass, $phpClass);
-  	}
+    $this->_defaultMapping = SabreAMF_ClassMapper::$maps;
+    
+    foreach ($this->_getMappedClasses() as $flashClass => $phpClass) {
+      SabreAMF_ClassMapper::registerClass($flashClass, $phpClass);
+    }
   }
   
   protected function _tearDownMapping()
   {
-  	SabreAMF_ClassMapper::$maps = $this->_defaultMapping;
+    SabreAMF_ClassMapper::$maps = $this->_defaultMapping;
   }
   
   /**
@@ -79,7 +79,7 @@ abstract class sfBasePhpunitAmfTestCase extends sfBasePhpunitTestCase
    */
   protected function _getAmfEndPoint($key = 'app_amf_endpoint')
   {
- 	  if (!sfConfig::has($key)) {
+     if (!sfConfig::has($key)) {
       throw new Exception('The gateway url for testing amf services must be set in app.yml config file. The app.yml option should have a name `'.$key.'`');
     }
     

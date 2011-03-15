@@ -310,7 +310,7 @@ abstract class sfBasePhpunitSeleniumTestCase
   {
     $path = array(sfConfig::get('sf_test_dir'), 'phpunit', 'fixtures', 'common');
     
-    return implode(DIRECTORY_SEPARATOR,$path);
+    return implode(DIRECTORY_SEPARATOR, $path);
   }
   
   public function getSymfonyFixtureDir()

@@ -68,7 +68,7 @@ EOF;
     $this->handlePluginsTests($suite);
     $this->handleProjectTests($suite);
     
-  	$this->runTests($suite);
+    $this->runTests($suite);
   }
   
   protected function handlePluginsTests($suite)

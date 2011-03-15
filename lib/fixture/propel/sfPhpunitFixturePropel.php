@@ -10,9 +10,9 @@
  */
 class sfPhpunitFixturePropel extends sfPhpunitFixture
 {
-	/**
-	 * @var sfPhpunitPropelData
-	 */
+  /**
+   * @var sfPhpunitPropelData
+   */
   protected $_data;
   
   /**
@@ -86,8 +86,8 @@ class sfPhpunitFixturePropel extends sfPhpunitFixture
    */
   protected function _getDataLoader()
   {
-  	if (!$this->_data) $this->_data = new sfPhpunitPropelData();
-  	
-  	return $this->_data;
+    if (!$this->_data) $this->_data = new sfPhpunitPropelData();
+    
+    return $this->_data;
   }
 }

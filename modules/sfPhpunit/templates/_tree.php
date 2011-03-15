@@ -1,7 +1,7 @@
 <?php isset($path) || $path = null; ?>
 
 <ul>
-  <?php foreach($tree as $key => $leaf) : ?>
+  <?php foreach($tree->getRawValue() as $key => $leaf) : ?>
     <li>
     <?php if (is_array($leaf)) : ?>
       <?php 
