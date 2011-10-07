@@ -71,129 +71,130 @@ EOF;
     parent::execute($arguments, $options);
     $this->_runInitTask();
 
-		$options['application'] = $arguments['application'];
+    $options['application'] = $arguments['application'];
 
-		// still no class_path given? take the default one!
-		if (empty($options['class_path']))
-		{
-			$options['class_path'] = $this->modelTypes[$options['type']]['default_model_path'];
-		}
+    // still no class_path given? take the default one!
+    if (empty($options['class_path']))
+    {
+      $options['class_path'] = $this->modelTypes[$options['type']]['default_model_path'];
+    }
 
-		if (!empty($options['skip_methods']))
-		{
-			$methods = explode(',', $options['skip_methods']);
+    if (!empty($options['skip_methods']))
+    {
+      $methods = explode(',', $options['skip_methods']);
 
-			foreach($methods as $method)
-			{
-				array_push($this->skipMethods, $method);
-			}
-		}
+      foreach($methods as $method)
+      {
+        array_push($this->skipMethods, $method);
+      }
+    }
 
-		// a custom class given?
-		if(!empty($options['class']))
-		{
-			if (strpos($options['class_path'] , ':') !== false)
-			{
-				throw new sfCommandException(': is not supported in class_path when specifying the class name.');
-			}
+    // a custom class given?
+    if(!empty($options['class']))
+    {
+      if (strpos($options['class_path'] , ':') !== false)
+      {
+        throw new sfCommandException(': is not supported in class_path when specifying the class name.');
+      }
 
-			$options['libpath'] = $options['class_path'];
+      $options['libpath'] = $options['class_path'];
 
-			$this->createTestClass($options, $options['target']);
+      $this->createTestClass($options, $options['target']);
 
-			return;
-		}
+      return;
+    }
 
-		$paths = explode(':', $options['class_path']);
+    $paths = explode(':', $options['class_path']);
 
-		$namespaces= array();
+    $namespaces= array();
 
-		foreach($paths as $path)
-		{
-			$finder= sfFinder::type('directory');
+    foreach($paths as $path)
+    {
+      $finder= sfFinder::type('directory');
 
-			$ignoredDirs= $this->modelTypes[$options['type']]['ignored_directory'];
+      $ignoredDirs= $this->modelTypes[$options['type']]['ignored_directory'];
 
-			foreach ($ignoredDirs as $ignDir)
-			{
-				$finder= $finder->not_name($ignDir);
-			}
+      foreach ($ignoredDirs as $ignDir)
+      {
+        $finder= $finder->not_name($ignDir);
+      }
 
-			$dirs= $finder->in($path);
+      $dirs= $finder->in($path);
 
-			foreach ($dirs as $dir)
-			{
-				if (is_dir($dir))
-				{
-					$namespaces[]= $dir;
-				}
-			}
-		}
+      foreach ($dirs as $dir)
+      {
+        if (is_dir($dir))
+        {
+          $namespaces[]= $dir;
+        }
+      }
+    }
 
-		$paths= array_merge($paths, $namespaces);
+    $paths= array_merge($paths, $namespaces);
 
-		foreach ($paths as $path)
-		{
-			$options['libpath'] = $path;
+    foreach ($paths as $path)
+    {
+      $options['libpath'] = $path;
 
-			$dir = new DirectoryIterator($path);
+      $dir = new DirectoryIterator($path);
 
-			$this->logSection('phpunit', sprintf('Searching %s', $path));
+      $this->logSection('phpunit', sprintf('Searching %s', $path));
 
-			while ($dir->valid())
-			{
-				if (strpos($dir, '.php') !== false)
-				{
-					$subfolder = basename(dirname($path.DIRECTORY_SEPARATOR.$dir));
+      while ($dir->valid())
+      {
+        if (strpos($dir, '.php') !== false)
+        {
+          $subfolder = basename(dirname($path.DIRECTORY_SEPARATOR.$dir));
 
-					$suffix = !empty($options['file_suffix'])? $options['file_suffix'] : $this->modelTypes[$options['type']]['classFileSuffix'];
-					$options['class'] = str_replace($suffix, '', $dir);
+          $suffix = !empty($options['file_suffix'])? $options['file_suffix'] : $this->modelTypes[$options['type']]['classFileSuffix'];
+          $options['class'] = str_replace($suffix, '', $dir);
 
-					$this->createTestClass($options, $subfolder);
-				}
+          $this->createTestClass($options, $subfolder);
+        }
 
-				$dir->next();
-			}
+        $dir->next();
+      }
 
-		}
+    }
 
-		$this->_runInitTask();
-	}
+    $this->_runInitTask();
+  }
 
-	private function createTestClass($arguments, $subfolder = null)
-	{
-		$className = $arguments['class'];
+  private function createTestClass($arguments, $subfolder = null)
+  {
+    $className = $arguments['class'];
 
-		if (empty($className))
-		{
-			throw new sfCommandException('Class not specified.');
-		}
+    if (empty($className))
+    {
+      throw new sfCommandException('Class not specified.');
+    }
 
-		// if path is relative, add symfony project root path
-		if ($arguments['libpath'][0] != DIRECTORY_SEPARATOR)
-		{
-			$arguments['libpath'] = sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.$arguments['libpath'];
-		}
+    // if path is relative, add symfony project root path
+    if ($arguments['libpath'][0] != DIRECTORY_SEPARATOR)
+    {
+      $arguments['libpath'] = sfConfig::get('sf_root_dir').DIRECTORY_SEPARATOR.$arguments['libpath'];
+    }
 
-		$targetDir = 'models';
-		if ($subfolder) $targetDir.= '/'.$subfolder;
+    $targetDir = 'models';
+    if ($subfolder) $targetDir.= '/'.$subfolder;
 
-		$this->_createDir($targetDir);
+    $this->_createDir($targetDir);
 
-		// if class has interface in name, ignore it.
-		if (stripos($className, 'interface') !== false)
-		{
-			if ($arguments['verbose'])
-			{
-				$this->logSection('phpunit', sprintf('Skipped interface class %s', $className));
-			}
-			return;
-		}
+    // if class has interface in name, ignore it.
+    if (stripos($className, 'interface') !== false)
+    {
+      if ($arguments['verbose'])
+      {
+        $this->logSection('phpunit', sprintf('Skipped interface class %s', $className));
+      }
+      return;
+    }
 
-		$suffix = !empty($arguments['file_suffix'])? $arguments['file_suffix'] : $this->modelTypes[$arguments['type']]['classFileSuffix'];
+    $suffix = !empty($arguments['file_suffix'])? $arguments['file_suffix'] : $this->modelTypes[$arguments['type']]['classFileSuffix'];
 
-		$classFile = $className.$suffix;
+    $classFile = $className.$suffix;
 
+<<<<<<< HEAD
 		$classFilePath = $arguments['libpath'].DIRECTORY_SEPARATOR.$classFile;
 		if (!file_exists($classFilePath))
 		{
@@ -211,6 +212,28 @@ EOF;
 	
 	protected function _createModelClass($targetDir, array $vars = array())
 	{  
+=======
+    $classFilePath = $arguments['libpath'].DIRECTORY_SEPARATOR.$classFile;
+    if (!file_exists($classFilePath))
+    {
+      throw new sfCommandException(sprintf('PHP file %s not found.', $classFilePath));
+    }    
+
+    $parentName = $arguments['type'] == 'propel' ? 
+      'sfPhpunitPropelTestCase' : 'sfPhpunitDoctrineTestCase'; 
+
+    $vars = array(
+      'className' => $className.'TestCase',
+      'parentName' => $parentName, 
+      'modelClassName' => $arguments['class'],
+      'methods' => $this->_renderMethods($className));
+
+    $this->_createModelClass($targetDir, $vars);
+  }
+  
+  protected function _createModelClass($targetDir, array $vars = array())
+  {  
+>>>>>>> c35795c0f3285b423f4106925371b90b496f50df
     if (!isset($vars['parentName'])) {
       throw new Exception('The parent class has to be defined');
     }

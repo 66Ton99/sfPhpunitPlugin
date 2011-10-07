@@ -50,7 +50,7 @@ class sfBasePhpunitTestSuite
     
     $this->_backupSfConfig();
     
-  	$this->_start();
+    $this->_start();
   }
 
   /**
@@ -74,6 +74,22 @@ class sfBasePhpunitTestSuite
   }
   
   /**
+   * Recreate your database structure.
+   * 
+   * @return void
+   */
+  protected function _setupDatabaseSchema()
+  {
+    $this->setupContext();
+    
+    $env = sfContext::getInstance()->getConfiguration()->getEnvironment();
+    chdir(sfConfig::get('sf_root_dir'));
+    
+    $cmd = 'symfony propel:insert-sql --no-confirmation --env='.$env;
+    shell_exec($cmd);
+  }
+  
+  /**
    * build new sfContext
    * 
    * @return void
@@ -88,12 +104,12 @@ class sfBasePhpunitTestSuite
     $env = $this->getEnvironment();
     $name = $app.'-'.$env; 
     
-  	if (!sfContext::hasInstance($name)) {
-  	  sfContext::createInstance(
-  	    ProjectConfiguration::getApplicationConfiguration($app, $env, true), $name);
-  	}
-  	
-  	sfContext::switchTo($name);
+    if (!sfContext::hasInstance($name)) {
+      sfContext::createInstance(
+        ProjectConfiguration::getApplicationConfiguration($app, $env, true), $name);
+    }
+    
+    sfContext::switchTo($name);
   }
   
   /**
@@ -106,7 +122,7 @@ class sfBasePhpunitTestSuite
    */
   public function getEnvironment()
   {
-    return sfConfig::get('sf_environment', 'test');
+    return sfConfig::get('sf_phpunit_environment', sfConfig::get('sf_environment', 'test'));
   }
   
   public function getPackageFixtureDir()

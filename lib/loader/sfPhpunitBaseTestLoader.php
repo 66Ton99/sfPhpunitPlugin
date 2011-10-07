@@ -82,15 +82,25 @@ abstract class sfPhpunitBaseTestLoader
    */
   protected function _loadDir($path, sfBasePhpunitTestSuite $suite)
   {
+    $dirs = array();
+    $files = array();
     foreach (new DirectoryIterator($path) as $item) {
       //exclude system\metadirs;
-      if (in_array($item->getFilename(),$this->_excludeDirs)) {
+      if (in_array($item->getFilename(), $this->_excludeDirs) || $item->isDot() ) {
         continue;
       }
-      
+      if ($item->isDir()) {
+        $dirs[$item->getFilename()] = clone $item;
+      } else {
+        $files[$item->getFilename()] = clone $item;
+      }
+    }
+    ksort($dirs);
+    ksort($files);
+    foreach (array_merge($dirs, $files) as $item) {
       if ($item->isFile()) {
         $this->_loadFile($item->getPathname(), $suite);
-      } else if (!$item->isDot() && $item->isDir() && $this->_recursively) {
+      } else if ($item->isDir() && $this->_recursively) {
         $suite_next = $this->_getTestSuiteForDir($item->getPathname());
         $suite->addTestSuite($suite_next);
         $this->_loadDir($item->getPathname(), $suite_next);
@@ -124,6 +134,7 @@ abstract class sfPhpunitBaseTestLoader
     if (is_file($path)) $path = dirname($path);
     
     $test_suite_files = sfFinder::type('file')->name('*TestSuite.php')->maxdepth(0)->in($path);
+    
     if (!$path = array_shift($test_suite_files)) {
       return new sfBasePhpunitTestSuite();
     }

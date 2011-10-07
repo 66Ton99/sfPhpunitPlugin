@@ -9,14 +9,14 @@
  */
 class sfPhpunitCreateTestTask extends sfBasePhpunitCreateTask
 {
-	/**
-	 * @see sfTask
-	 */
-	protected function configure()
-	{ 
-	  parent::configure();
-	  
-		$this->addArguments(array(
+  /**
+   * @see sfTask
+   */
+  protected function configure()
+  { 
+    parent::configure();
+    
+    $this->addArguments(array(
       new sfCommandArgument('className', sfCommandArgument::REQUIRED, 'The generated class name'),
       new sfCommandArgument('targetDir', sfCommandArgument::OPTIONAL, 'The path where generate the testcase class', null),
     ));
@@ -25,23 +25,23 @@ class sfPhpunitCreateTestTask extends sfBasePhpunitCreateTask
       new sfCommandOption('parentName', null, sfCommandOption::PARAMETER_OPTIONAL , 'The parent class name', 'sfBasePhpunitTestCase'),
       new sfCommandOption('fixtureType', null, sfCommandOption::PARAMETER_OPTIONAL , 'The fixtures type that can be used in this test', null),
     ));
-	  
-	  $this->namespace = 'phpunit';
-		$this->name = 'create';
-		$this->briefDescription = 'Creates a stub testcase class';
+    
+    $this->namespace = 'phpunit';
+    $this->name = 'create';
+    $this->briefDescription = 'Creates a stub testcase class';
 
-		$this->detailedDescription = <<<EOF
+    $this->detailedDescription = <<<EOF
 The [phpunit:create-functional] task creates a test class of a module for PHPUnit testing
 EOF;
-	}
+  }
 
-	/**
-	 * @see sfTask
-	 */
-	protected function execute($arguments = array(), $options = array())
-	{	  
-	  parent::execute($arguments, $options);
-	  
+  /**
+   * @see sfTask
+   */
+  protected function execute($arguments = array(), $options = array())
+  {    
+    parent::execute($arguments, $options);
+    
     $this->_runInitTask();
     
     $interfaces = '';
@@ -56,10 +56,10 @@ EOF;
       
       $interfaces = 'implements '.$map[$options['fixtureType']];
     }
-	  
-	  $this->_createClass($arguments['targetDir'],$options['source'],array(
+    
+    $this->_createClass($arguments['targetDir'], $options['source'],array(
       'className' => $arguments['className'],
       'parentName' => $options['parentName'],
-	    'interfaces' => $interfaces));
-	}
+      'interfaces' => $interfaces));
+  }
 }

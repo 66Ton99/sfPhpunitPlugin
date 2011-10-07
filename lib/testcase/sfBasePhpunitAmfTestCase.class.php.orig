@@ -26,17 +26,30 @@ abstract class sfBasePhpunitAmfTestCase extends sfBasePhpunitTestCase
    * @var false|string 
    */
   protected $_amfservice = false;
+<<<<<<< HEAD
+	
+	public function setUp()
+  {
+    $this->_setUpMapping();
+  	parent::setUp();
+=======
   
   public function setUp()
   {
     $this->_setUpMapping();
     parent::setUp();
+>>>>>>> c35795c0f3285b423f4106925371b90b496f50df
   }
   
   public function tearDown()
   {
+<<<<<<< HEAD
+  	$this->_tearDownMapping();
+  	parent::tearDown();
+=======
     $this->_tearDownMapping();
     parent::tearDown();
+>>>>>>> c35795c0f3285b423f4106925371b90b496f50df
   }
   
   /**
@@ -46,16 +59,28 @@ abstract class sfBasePhpunitAmfTestCase extends sfBasePhpunitTestCase
    */
   protected function _setUpMapping()
   {
+<<<<<<< HEAD
+  	$this->_defaultMapping = SabreAMF_ClassMapper::$maps;
+  	
+  	foreach ($this->_getMappedClasses() as $flashClass => $phpClass) {
+  		SabreAMF_ClassMapper::registerClass($flashClass, $phpClass);
+  	}
+=======
     $this->_defaultMapping = SabreAMF_ClassMapper::$maps;
     
     foreach ($this->_getMappedClasses() as $flashClass => $phpClass) {
       SabreAMF_ClassMapper::registerClass($flashClass, $phpClass);
     }
+>>>>>>> c35795c0f3285b423f4106925371b90b496f50df
   }
   
   protected function _tearDownMapping()
   {
+<<<<<<< HEAD
+  	SabreAMF_ClassMapper::$maps = $this->_defaultMapping;
+=======
     SabreAMF_ClassMapper::$maps = $this->_defaultMapping;
+>>>>>>> c35795c0f3285b423f4106925371b90b496f50df
   }
   
   /**
@@ -79,7 +104,11 @@ abstract class sfBasePhpunitAmfTestCase extends sfBasePhpunitTestCase
    */
   protected function _getAmfEndPoint($key = 'app_amf_endpoint')
   {
-    if (!sfConfig::has($key)) {
+<<<<<<< HEAD
+ 	  if (!sfConfig::has($key)) {
+=======
+     if (!sfConfig::has($key)) {
+>>>>>>> c35795c0f3285b423f4106925371b90b496f50df
       throw new Exception('The gateway url for testing amf services must be set in app.yml config file. The app.yml option should have a name `'.$key.'`');
     }
     

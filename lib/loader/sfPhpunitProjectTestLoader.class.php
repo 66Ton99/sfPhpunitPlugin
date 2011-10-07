@@ -22,8 +22,8 @@ class sfPhpunitProjectTestLoader extends sfPhpunitBaseTestLoader
    */
   public function __construct($path = null)
   {
-  	$path = str_replace('\\', '/', $path);
-  	
+    $path = str_replace('\\', '/', $path);
+    
     if (empty($path)) {
       $path = $this->_getTestDir();
       $this->_recursively = true;

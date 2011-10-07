@@ -64,8 +64,14 @@ class sfPhpunitFixturePropel extends sfPhpunitFixture
    */
   protected function _getDataLoader()
   {
+<<<<<<< HEAD
   	if (!$this->_data) $this->_data = new sfPhpunitPropelData();
 
   	return $this->_data;
+=======
+    if (!$this->_data) $this->_data = new sfPhpunitPropelData();
+    
+    return $this->_data;
+>>>>>>> c35795c0f3285b423f4106925371b90b496f50df
   }
 }
