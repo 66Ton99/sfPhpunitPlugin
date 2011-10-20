@@ -160,5 +160,10 @@ abstract class sfBasePhpunitCreateTask extends sfBaseTask
     $initTask->run(array(), array());
 //      '--overwrite' => $this->_isOverwrite(),
 //      '--verbose' => $this->_isVerbose()));
+<<<<<<< HEAD
+  }
+}
+=======
 	}
 }
+>>>>>>> 79ee6d21c79480b1fc15fd75d19c2b4f0ef743ae
