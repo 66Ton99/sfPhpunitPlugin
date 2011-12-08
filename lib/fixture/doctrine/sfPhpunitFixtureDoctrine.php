@@ -35,7 +35,7 @@ class sfPhpunitFixtureDoctrine extends sfPhpunitFixture
     }
     
     
-//    foreach ((array)$files as $file) {// I didn't test in in sf1.2 but in sf1.4 it works fine. I allows use dependencies between fixtures
+//    foreach ((array)$files as $file) {// I didn't test it in sf1.2 but in sf1.4 it works fine. It allows use dependencies between fixtures
       $this->_getDataLoader()->setFormat('yml');
       $this->_getDataLoader()->setDirectory($files);
       $this->_getDataLoader()->doImport(true);
