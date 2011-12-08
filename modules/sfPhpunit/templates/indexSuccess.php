@@ -13,28 +13,22 @@
 <h2>Fixture list</h2>
 <?php function writeRow($list, $keyOr = null) { ?>
 <ul>
-  <?php foreach ($list as $key => $val) { if (null !== $keyOr) $key = $keyOr . '-' . $key; ?>
+  <?php foreach ($list as $key => $val) { $id = str_replace(array('/', '.'), '', $keyOr . $val); ?>
     <li>
-      <?php if (!(0 == $key && !is_string($val))) { ?>
-        <input <?php  if (is_string($val) && 'commObject' == dirname($val)) { 
-                        ?>checked="checked" type="radio" name="comm"<?php 
-                      } else { 
-                        ?>type="checkbox" name="list[]" <?php 
-                      } ?> value="<?php echo $key ?>" id="<?php echo $key ?>">
+      <?php if (is_array($val)) { 
+        echo $key; 
+        writeRow($val, $key . '/');
+      } else { ?>
+        <input type="checkbox" name="list[]" value="<?php echo $keyOr . $val ?>" id="<?php echo $id ?>">
+        <?php echo content_tag('label', basename($val), array('for' => $id));?>
       <?php } ?> 
-      <?php if (!is_string($val) && !empty($val[0])) { 
-        echo label_for($key, dirname($val[0])); 
-        writeRow($val, $key);
-      } elseif (is_string($val)) { 
-        echo label_for($key, basename($val)); 
-      } ?> 
     </li>
   <?php } ?>
 </ul>
 <?php } ?>
 
 
-<?php echo form_tag(sfContext::getInstance()->getModuleName() . '/load') ?>
-  <?php writeRow($fixtureslist); ?>
-  <?php echo submit_tag('Load', array('name' => 'load')) ?>
+<?php echo form_tag(sfContext::getInstance()->getModuleName() . '/load', array('method' => 'get')) ?>
+  <?php writeRow($fixtureslist->getRawValue()); ?>
+  <input id="submit_fixtures" type="submit" name="load" value="Load" />
 </form>

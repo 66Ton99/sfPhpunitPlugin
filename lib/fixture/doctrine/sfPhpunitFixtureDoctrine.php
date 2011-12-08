@@ -33,12 +33,13 @@ class sfPhpunitFixtureDoctrine extends sfPhpunitFixture
       $this->getDir($fixture_type) : $this->getDir($fixture_type).'/'.$file.$this->_getExt();
       throw new Exception('There is nothing to load under the path '.$path);
     }
-
-    foreach ($files as $file) {
+    
+    
+//    foreach ((array)$files as $file) {// I didn't test in in sf1.2 but in sf1.4 it works fine. I allows use dependencies between fixtures
       $this->_getDataLoader()->setFormat('yml');
-      $this->_getDataLoader()->setDirectory($file);
+      $this->_getDataLoader()->setDirectory($files);
       $this->_getDataLoader()->doImport(true);
-    }
+//    }
 
     return $this;
   }

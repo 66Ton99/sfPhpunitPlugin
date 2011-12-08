@@ -198,8 +198,23 @@ abstract class sfPhpunitFixture
    * @return array|string|false
    */
   public function getFiles($path = null, $fixture_type = self::OWN)
-  {    
-    $fullPath = $this->getDir($fixture_type) . '/' . $path;
+  {
+    $fullPath = $this->getDir($fixture_type) . '/';
+    if (is_array($path)) {
+      $files = array();
+      foreach ($path as $file) {
+        $file = $fullPath . $file . $this->_getExt();
+        if (is_readable($file)) {
+          $files[] = $file;
+        }
+      }
+      if (!empty($files)) {
+        return $files;
+      } else {
+        return false;
+      }
+    }
+    $fullPath .= $path;
     if ('/' == substr($fullPath, -1,1)) {
       if (!is_readable($fullPath)) return false;
       return sfFinder::type('file')->name('*' . $this->_getExt())->maxdepth(0)->in($fullPath);
