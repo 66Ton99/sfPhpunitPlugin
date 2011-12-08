@@ -106,67 +106,51 @@ abstract class sfBasePhpunitMinkTestCase extends \sfBasePhpunitTestCase
      */
     protected static function registerMinkSessions(Mink $mink)
     {
-        if (!$mink->hasSession('goutte')) {
-            $mink->registerSession('goutte', static::initGoutteSession());
-            $mink->setDefaultSessionName('goutte');
+        $configs = sfConfig::get('sf_phpunit_mink');
+        foreach ($configs['drivers'] as $driver => $options) {
+           if (!$mink->hasSession($driver)) {
+               $initFn = 'init' . ucfirst($driver) . 'Session';
+               $mink->registerSession($driver, static::$initFn());
+           }
         }
-
-        if (!$mink->hasSession('sahi')) {
-            $mink->registerSession('sahi', static::initSahiSession());
-        }
-
-        if (!$mink->hasSession('zombie')) {
-            $mink->registerSession('zombie', static::initZombieSession());
-        }
-
-        if (!$mink->hasSession('selenium')) {
-            $mink->registerSession('selenium', static::initSeleniumSession());
-        }
+        $mink->setDefaultSessionName($configs['default_driver']);
     }
 
     /**
      * Initizalizes and returns new GoutteDriver session.
      *
-     * @param   array   $zendConfig         zend config parameters
-     * @param   array   $serverParameters   server parameters
-     *
      * @return  Behat\Mink\Session
      */
-    protected static function initGoutteSession(array $zendConfig = array(), array $serverParameters = array())
+    protected static function initGoutteSession()
     {
-        $zendConfig = array_merge(array('encodecookies' => false), $zendConfig);
+        $configs = sfConfig::get('sf_phpunit_mink');
+        extract($configs['drivers']['goutte']);
 
         return new Session(new GoutteDriver(new GoutteClient($zendConfig, $serverParameters)));
     }
 
     /**
-     * Initizalizes and returns new SahiDriver session.
-     *
-     * @param   string  $browser    browser name to use (default = firefox)
-     * @param   array   $sid        sahi SID
-     * @param   string  $host       sahi proxy host
-     * @param   integer $port       port number
+     * Initizalizes and returns new SahiDriver session.     
      *
      * @return  Behat\Mink\Session
      */
-    protected static function initSahiSession($browser = 'firefox', $sid = null, $host = 'localhost', $port = 9999)
+    protected static function initSahiSession()
     {
+        $configs = sfConfig::get('sf_phpunit_mink');
+        extract($configs['drivers']['sahi']);
         return new Session(new SahiDriver($browser, new SahiClient(new SahiConnection($sid, $host, $port))));
     }
 
     /**
      * Initizalizes and returns new ZombieDriver session.
      *
-     * @param   string  $host           zombie.js server host
-     * @param   integer $port           port number
-     * @param   Boolean $autoServer     use bundled with driver server or manually started one
-     * @param   string  $nodeBin        path to node binary
-     *
      * @return  Behat\Mink\Session
      */
-    protected static function initZombieSession($host = '127.0.0.1', $port = 8124,
-                                                $autoServer = true, $nodeBin = 'node')
+    protected static function initZombieSession()
     {
+        $configs = sfConfig::get('sf_phpunit_mink');
+        extract($configs['drivers']['zombie']);
+        
         $connection = new ZombieConnection($host, $port);
         $server     = $autoServer ? new ZombieServer($host, $port, $nodeBin) : null;
 
@@ -176,15 +160,15 @@ abstract class sfBasePhpunitMinkTestCase extends \sfBasePhpunitTestCase
     /**
      * Initizalizes and returns new Selenium session.
      *
-     * @param   string  $host           selenium server server host
-     * @param   integer $port           port number
-     *
      * @return  Behat\Mink\Session
      */
-    protected static function initSeleniumSession($host = '127.0.0.1', $port = 4444)
+    protected static function initSeleniumSession()
     {
-        $client     = new SeleniumClient($host, $port);
-        $driver     = new SeleniumDriver('firefox', $_SERVER['WEB_FIXTURES_HOST'], $client);
+        $configs = sfConfig::get('sf_phpunit_mink');
+        extract($configs['drivers']['selenium']);
+        
+        $client = new SeleniumClient($host, $port, $timeout);
+        $driver = new SeleniumDriver($browser, $baseUrl, $client);
 
         return new Session($driver);
     }

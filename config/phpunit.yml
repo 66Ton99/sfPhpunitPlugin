@@ -32,6 +32,30 @@ all:
   amf:
     endpoint:            false
   
+  mink:
+    default_driver: 'goutte'
+    drivers:
+      goutte:
+        zendConfig: [encodecookies: false] # zend config parameters
+        serverParameters: [] # server parameters
+      sahi:
+        browser: 'firefox' # browser name to use
+        sid: null # sahi SID
+        host: 'localhost' # sahi proxy host
+        port: 9999 # port number
+      zombie:
+        host: '127.0.0.1' # zombie.js server host
+        port: 8124 # port number
+        autoServer: true # use bundled with driver server or manually started one
+        nodeBin: 'node' # path to node binary
+      selenium:
+        host: 'localhost' # selenium server server host
+        port: '4444' # port number
+        browser: 'firefox' # browser name to use
+        baseUrl: '' # base URL
+        timeout: 30 # time out in seconds
+      
+  
   selenium:
     collect_coverage: false
     
