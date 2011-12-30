@@ -10,6 +10,7 @@ use Behat\Mink\Mink,
     Behat\Mink\Driver\SahiDriver,
     Behat\Mink\Driver\ZombieDriver,
     Behat\Mink\Driver\SeleniumDriver,
+    Behat\Mink\Driver\Selenium2Driver,
     Behat\Mink\Driver\Zombie\Connection as ZombieConnection,
     Behat\Mink\Driver\Zombie\Server as ZombieServer;
 
@@ -32,6 +33,7 @@ use Behat\SahiClient\Connection as SahiConnection,
  * Mink TestCase.
  *
  * @author      Konstantin Kudryashov <ever.zet@gmail.com>
+ * @author      Ton Sharp <Foma-PRO@66ton99.org.ua>
  */
 abstract class sfBasePhpunitMinkTestCase extends \sfBasePhpunitTestCase
 {
@@ -171,5 +173,17 @@ abstract class sfBasePhpunitMinkTestCase extends \sfBasePhpunitTestCase
         $driver = new SeleniumDriver($browser, $baseUrl, $client);
 
         return new Session($driver);
+    }
+    
+    /**
+     * Initizalizes and returns new Selenium2Driver session.
+     *
+     * @return  Behat\Mink\Session
+     */
+    protected static function initWebdriverSession()
+    {
+        $configs = sfConfig::get('sf_phpunit_mink');
+        extract($configs['drivers']['webdriver']);
+        return new Session(new Selenium2Driver($browser, $desiredCapabilities, $host));
     }
 }

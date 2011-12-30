@@ -54,6 +54,10 @@ all:
         browser: 'firefox' # browser name to use
         baseUrl: '' # base URL
         timeout: 30 # time out in seconds
+      webdriver:
+        browser: 'firefox' #browser name
+        host: 'http://localhost:4444/wd/hub' #selenium server server host
+        desiredCapabilities: null #The desired capabilities
       
   
   selenium:
