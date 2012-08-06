@@ -1,0 +1,15 @@
+sfPhpunit:
+  url:   /sfPhpunit
+  param: { module: sfPhpunit, action: index }
+
+sfPhpunit_cc:
+  url:   /sfPhpunit/cc
+  param: { module: sfPhpunit, action: cc }
+
+sfPhpunit_load:
+  url:   /sfPhpunit/load
+  param: { module: sfPhpunit, action: load }
+
+sfPhpunit_run:
+  url:   /sfPhpunit/run
+  param: { module: sfPhpunit, action: run }

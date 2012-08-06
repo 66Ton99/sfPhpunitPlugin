@@ -71,7 +71,8 @@ EOF;
     $this->handlePluginsTests($suite);
     $this->handleProjectTests($suite);
     
-    $this->runTests($suite);
+    $result = $this->runTests($suite);
+    return $result->wasSuccessful() ? 0 : 1;
   }
   
   protected function handlePluginsTests($suite)
@@ -118,7 +119,7 @@ EOF;
   {
     $arguments = sfConfig::get('sf_phpunit_arguments', array());
     $runner = new PHPUnit_TextUI_TestRunner();
-    $runner->doRun($suite, $arguments);
+    return $runner->doRun($suite, $arguments);
   }
   
   protected function executeInitTask()
