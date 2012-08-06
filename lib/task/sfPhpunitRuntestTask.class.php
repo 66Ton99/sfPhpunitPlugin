@@ -115,6 +115,9 @@ EOF;
      sfPhpunitProjectTestLoader::factory($this->arguments['path'])->suite());
   }
   
+  /**
+   * @return PHPUnit_Framework_TestResult
+   */
   protected function runTests($suite)
   {
     $arguments = sfConfig::get('sf_phpunit_arguments', array());
