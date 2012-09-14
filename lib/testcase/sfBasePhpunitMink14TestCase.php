@@ -2,19 +2,20 @@
 
 //namespace Phpunit\testcase;
 
-require_once 'mink/autoload.php';
+// require_once 'mink/autoload.php';
 
 use Behat\Mink\Mink,
     Behat\Mink\Session,
     Behat\Mink\Driver\GoutteDriver,
+    Behat\Mink\Driver\Goutte\Client as GoutteClient,
     Behat\Mink\Driver\SahiDriver,
     Behat\Mink\Driver\ZombieDriver,
     Behat\Mink\Driver\SeleniumDriver,
     Behat\Mink\Driver\Selenium2Driver,
-    Behat\Mink\Driver\Zombie\Connection as ZombieConnection,
-    Behat\Mink\Driver\Zombie\Server as ZombieServer;
+    Behat\Mink\Driver\NodeJS\Connection as ZombieConnection,
+    Behat\Mink\Driver\NodeJS\Server\ZombieServer;
 
-use Goutte\Client as GoutteClient;
+// use Goutte\Client as GoutteClient;
 
 use Selenium\Client as SeleniumClient;
 
@@ -35,7 +36,7 @@ use Behat\SahiClient\Connection as SahiConnection,
  * @author      Konstantin Kudryashov <ever.zet@gmail.com>
  * @author      Ton Sharp <Foma-PRO@66ton99.org.ua>
  */
-abstract class sfBasePhpunitMinkTestCase extends \sfBasePhpunitTestCase
+abstract class sfBasePhpunitMink14TestCase extends \sfBasePhpunitTestCase
 {
     /**
      * Mink instance.
@@ -128,7 +129,7 @@ abstract class sfBasePhpunitMinkTestCase extends \sfBasePhpunitTestCase
         $configs = sfConfig::get('sf_phpunit_mink');
         extract($configs['drivers']['goutte']);
 
-        return new Session(new GoutteDriver(new GoutteClient($zendConfig, $serverParameters)));
+        return new Session(new GoutteDriver(new GoutteClient()));
     }
 
     /**

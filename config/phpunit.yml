@@ -6,17 +6,17 @@ all:
 
   # project test directory
   dir:                   '%SF_TEST_DIR%/phpunit'
-  
+
   arguments:
 
-  # todo 
+  # todo
   fixture:
     doctrine:
-    
+
     propel:
-    
+
     dbunit:
-  
+
 
   filter:
     vendor: {path: '%SF_LIB_DIR%/vendor', ext: '.php'}
@@ -28,47 +28,47 @@ all:
     form-base: {path: '%SF_LIB_DIR%/form/doctrine/base', ext: '*'}
     filter-base: {path: '%SF_LIB_DIR%/filter/doctrine/base', ext: '*'}
     tests: {path: '%SF_ROOT_DIR%/test', ext: '.php'}
-        
+
   amf:
     endpoint:            false
-  
+
   mink:
     default_driver: 'goutte'
     drivers:
       goutte:
         zendConfig: [encodecookies: false] # zend config parameters
         serverParameters: [] # server parameters
-      sahi:
-        browser: 'firefox' # browser name to use
-        sid: null # sahi SID
-        host: 'localhost' # sahi proxy host
-        port: 9999 # port number
-      zombie:
-        host: '127.0.0.1' # zombie.js server host
-        port: 8124 # port number
-        autoServer: true # use bundled with driver server or manually started one
-        nodeBin: 'node' # path to node binary
-      selenium:
-        host: 'localhost' # selenium server server host
-        port: '4444' # port number
-        browser: 'firefox' # browser name to use
-        baseUrl: '' # base URL
-        timeout: 30 # time out in seconds
+#      sahi:
+#        browser: 'firefox' # browser name to use
+#        sid: null # sahi SID
+#        host: 'localhost' # sahi proxy host
+#        port: 9999 # port number
+#      zombie:
+#        host: '127.0.0.1' # zombie.js server host
+#        port: 8124 # port number
+#        autoServer: true # use bundled with driver server or manually started one
+#        nodeBin: 'node' # path to node binary
+#      selenium:
+#        host: 'localhost' # selenium server server host
+#        port: '4444' # port number
+#        browser: 'firefox' # browser name to use
+#        baseUrl: '' # base URL
+#        timeout: 30 # time out in seconds
       webdriver:
         browser: 'firefox' #browser name
         host: 'http://localhost:4444/wd/hub' #selenium server server host
         desiredCapabilities: null #The desired capabilities
-      
-  
+
+
   selenium:
     collect_coverage: false
-    
+
     remote_project_dir:
     #you can used it in case of the test application and selenium server are run on different computers.
     #but you have to upload the file stored in fixtures through web page.
     #You need to mount prj dir to selenium computer and define this option.
     #From the test case use for example method fixture()->getDirOwnAsRemote()
-            
+
     driver:
       name:              false
       browser:           '*firefox'
@@ -79,7 +79,7 @@ all:
       http_timeout:      false
       sleep:             false
       wait:              false
-  
+
   init:
     apps_test_index:     true
     base_classes:        true
