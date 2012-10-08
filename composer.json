@@ -1,0 +1,25 @@
+{
+    "name": "sfPhpunitPlugin",
+    "type": "symfony1-plugin",
+    "description": "Integrate phpunit framework with symfony one",
+    "keywords": [
+        "phpunit",
+        "test"
+    ],
+    "homepage": "https://github.com/66Ton99/sfPhpunitPlugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ton Sharp",
+            "email": "Forma-PRO@66ton99.org.ua"
+        },
+        {
+            "name": "Maksim Kotlyar",
+            "email": "kotlyar.maksim@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.2",
+        "composer/installers": "v1.0.0"
+    }
+}
