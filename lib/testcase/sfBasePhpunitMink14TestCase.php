@@ -38,6 +38,26 @@ use Behat\SahiClient\Connection as SahiConnection,
  */
 abstract class sfBasePhpunitMink14TestCase extends \sfBasePhpunitTestCase
 {
+
+    /**
+     * Full URL to local phpunit_coverage.php
+     *
+     * http://local-host/sfPhpunitPlugin/phpunit_coverage.php
+     *
+     * @var string
+     */
+    protected $coverageScriptUrl;
+
+    /**
+     * @var boolean
+     */
+    private $collectCodeCoverageInformation;
+
+    /**
+     * @var string
+     */
+    private $testId;
+
     /**
      * Mink instance.
      *
@@ -186,5 +206,92 @@ abstract class sfBasePhpunitMink14TestCase extends \sfBasePhpunitTestCase
         $configs = sfConfig::get('sf_phpunit_mink');
         extract($configs['drivers']['webdriver']);
         return new Session(new Selenium2Driver($browser, $desiredCapabilities, $host));
+    }
+
+    /**
+     * @param PHPUnit_Framework_TestResult $result
+     * @return PHPUnit_Framework_TestResult
+     */
+    public function run(PHPUnit_Framework_TestResult $result = null)
+    {
+        $this->testId = get_class($this) . '__' . $this->getName();
+
+        if ($result === null) {
+            $result = $this->createResult();
+        }
+
+
+        $this->collectCodeCoverageInformation = $result->getCollectCodeCoverageInformation();
+
+        parent::run($result);
+
+        if ($this->collectCodeCoverageInformation && $this->coverageScriptUrl) {
+            $session = $this->getSession('goutte');
+
+            $url = sprintf(
+                '%s?PHPUNIT_SELENIUM_TEST_ID=%s',
+                $this->coverageScriptUrl,
+                $this->testId
+            );
+
+            $session->visit($url);
+
+            $coverage = array();
+            if ($content = $session->getPage()->getContent()) {
+                $coverage = unserialize($content);
+                if (is_array($coverage)) {
+                    $coverage = $this->matchLocalAndRemotePaths($coverage);
+                } else {
+                    throw new Exception('Empty or invalid code coverage data received from url "' . $url . '"');
+                }
+            }
+
+            $result->getCodeCoverage()->append(
+              $coverage,
+                $this
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param  array $coverage
+     * @return array
+     * @author Mattis Stordalen Flister <mattis@xait.no>
+     */
+    protected function matchLocalAndRemotePaths(array $coverage)
+    {
+        $coverageWithLocalPaths = array();
+
+        foreach ($coverage as $originalRemotePath => $data) {
+            $remotePath = $originalRemotePath;
+            $separator  = $this->findDirectorySeparator($remotePath);
+
+            while (!($localpath = stream_resolve_include_path($remotePath)) &&
+                strpos($remotePath, $separator) !== FALSE) {
+                $remotePath = substr($remotePath, strpos($remotePath, $separator) + 1);
+            }
+
+            if ($localpath && md5_file($localpath) == $data['md5']) {
+                $coverageWithLocalPaths[$localpath] = $data['coverage'];
+            }
+        }
+
+        return $coverageWithLocalPaths;
+    }
+
+    /**
+     * @param  string $path
+     * @return string
+     * @author Mattis Stordalen Flister <mattis@xait.no>
+     */
+    protected function findDirectorySeparator($path)
+    {
+        if (strpos($path, '/') !== FALSE) {
+            return '/';
+        }
+
+        return '\\';
     }
 }
