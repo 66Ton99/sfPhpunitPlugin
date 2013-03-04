@@ -46,8 +46,10 @@ abstract class sfBasePhpunitTestCase
   
   protected function _restoreSfConfig()
   {
-    sfConfig::clear();
-    sfConfig::add($this->_backupSfConfig);
+    if (!empty($this->_backupSfConfig)) {
+      sfConfig::clear();
+      sfConfig::add($this->_backupSfConfig);
+    }
   }
 
   /**
