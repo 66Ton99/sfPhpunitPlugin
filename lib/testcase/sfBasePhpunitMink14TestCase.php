@@ -209,23 +209,34 @@ abstract class sfBasePhpunitMink14TestCase extends \sfBasePhpunitTestCase
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function runTest()
+    {
+        $this->testId = get_class($this) . '__' . $this->getName();
+        if ($this->collectCodeCoverageInformation && $this->coverageScriptUrl) {
+          $this->getSession()->setCookie('PHPUNIT_SELENIUM_TEST_ID', $this->testId);
+        }
+
+        return parent::runTest();
+    }
+
+    /**
      * @param PHPUnit_Framework_TestResult $result
      * @return PHPUnit_Framework_TestResult
      */
     public function run(PHPUnit_Framework_TestResult $result = null)
     {
-        $this->testId = get_class($this) . '__' . $this->getName();
-
         if ($result === null) {
             $result = $this->createResult();
         }
-
 
         $this->collectCodeCoverageInformation = $result->getCollectCodeCoverageInformation();
 
         parent::run($result);
 
         if ($this->collectCodeCoverageInformation && $this->coverageScriptUrl) {
+
             $session = $this->getSession('goutte');
 
             $url = sprintf(
@@ -269,7 +280,7 @@ abstract class sfBasePhpunitMink14TestCase extends \sfBasePhpunitTestCase
             $separator  = $this->findDirectorySeparator($remotePath);
 
             while (!($localpath = stream_resolve_include_path($remotePath)) &&
-                strpos($remotePath, $separator) !== FALSE) {
+                strpos($remotePath, $separator) !== false) {
                 $remotePath = substr($remotePath, strpos($remotePath, $separator) + 1);
             }
 
@@ -288,7 +299,7 @@ abstract class sfBasePhpunitMink14TestCase extends \sfBasePhpunitTestCase
      */
     protected function findDirectorySeparator($path)
     {
-        if (strpos($path, '/') !== FALSE) {
+        if (strpos($path, '/') !== false) {
             return '/';
         }
 
